@@ -2,50 +2,58 @@ use crate::util;
 
 use util::Runnable;
 
-pub struct Day1 {
+pub struct Day3 {
     file: String,
+    n_digits: usize,
 }
 
-impl  Day1 {
-    pub fn new() -> Day1 {
-        Day1 {
-            file: String::from("./src/day1/input.txt"),
+impl  Day3 {
+    pub fn new(typ: &str) -> Day3 {
+        let nd = match typ {
+            "sample" => 5,
+            "input" => 12,
+            _ => panic!("UNKNOWN TYPE")
+        };
+
+        Day3 {
+            file: String::from("./src/day3/".to_owned() + typ + ".txt"),
+            n_digits: nd,
         }
     }
 
-    fn read(&self) -> Vec<i32> {
-        let mut v = Vec::new();
+    fn read(&self) -> Vec<u32> {
+        let mut v = vec![0; self.n_digits + 1];
+        let mut counter = 0;
         if let Ok(lines) = util::read_lines(&self.file) {
-            v = lines.map(|line| line.unwrap().parse::<i32>().unwrap()).collect();
+            for line in lines {
+                for (i, c) in line.unwrap().chars().enumerate() {
+                    v[i] += c.to_digit(10).unwrap();
+                }
+                counter += 1;
+            }
         }
+        v[self.n_digits] = counter;
         v
     }
 }
 
-impl Runnable for Day1 {
+impl Runnable for Day3 {
     fn run(&self) {
-        let mut increments = 0;
-        let mut previous = i32::MAX;
         let v = self.read();
-        for i in &v {
-            if i > &previous {
-                increments += 1;
+        let mut gamma = 0;
+        let mut eps = 0;
+        let half = v[self.n_digits]/2;
+        for i in 0..self.n_digits {
+            gamma *= 2;
+            eps *= 2;
+            if v[i] > half {
+                gamma += 1;
+            } else {
+                eps += 1;
             }
-            previous = i.clone();
         }
 
-        println!("Day1 Part 1- Increments: {}", increments);
+        println!("Day3 Part 1 - consumption: v {:?} g {} e {} g*e {}", v, gamma, eps, gamma*eps);
 
-        let mut sliding_inc = 0;
-        let mut sliding_prev = v[0] + v[1] + v[2];
-
-        for i in 3..v.len() {
-            let new_val = sliding_prev + v[i] - v[i-3];
-            if new_val > sliding_prev {
-                sliding_inc += 1;
-            }
-            sliding_prev = new_val;
-        }
-        println!("Day1 Part 2 - Window Increments: {}", sliding_inc);
     }
 }

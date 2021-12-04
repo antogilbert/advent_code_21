@@ -7,9 +7,9 @@ pub struct Day1 {
 }
 
 impl  Day1 {
-    pub fn new() -> Day1 {
+    pub fn new(typ: &str) -> Day1 {
         Day1 {
-            file: String::from("./src/day1/input.txt"),
+            file: String::from("./src/day1/".to_owned() + typ + ".txt"),
         }
     }
 

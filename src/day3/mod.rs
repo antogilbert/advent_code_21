@@ -31,7 +31,7 @@ impl Runnable for Day1 {
             if i > &previous {
                 increments += 1;
             }
-            previous = *i;
+            previous = i.clone();
         }
 
         println!("Day1 Part 1- Increments: {}", increments);

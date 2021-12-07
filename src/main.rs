@@ -2,6 +2,7 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
 mod util;
 
 use util::Runnable;
@@ -15,12 +16,14 @@ fn main() {
     let d2: Box<dyn Runnable> = Box::new(day2::Day2::new(&typ));
     let d3: Box<dyn Runnable> = Box::new(day3::Day3::new(&typ));
     let d4: Box<dyn Runnable> = Box::new(day4::Day4::new(&typ));
+    let d5: Box<dyn Runnable> = Box::new(day5::Day5::new(&typ));
 
     let mut runners: Vec<Box<dyn Runnable>> = Vec::new();
     runners.push(d1);
     runners.push(d2);
     runners.push(d3);
     runners.push(d4);
+    runners.push(d5);
 
     runners[day.parse::<usize>().unwrap() - 1].run();
 }

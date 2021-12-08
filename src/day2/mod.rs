@@ -36,7 +36,7 @@ impl Instruction {
 impl Day2 {
     pub fn new(typ: &str) -> Day2 {
         Day2 {
-            file: String::from("./src/day2/".to_owned() + typ + ".txt"),
+            file: "./src/day2/".to_owned() + typ + ".txt",
         }
     }
 

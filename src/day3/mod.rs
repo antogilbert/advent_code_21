@@ -16,7 +16,7 @@ impl  Day3 {
         };
 
         Day3 {
-            file: String::from("./src/day3/".to_owned() + typ + ".txt"),
+            file: "./src/day3/".to_owned() + typ + ".txt",
             n_digits: nd,
         }
     }
@@ -39,8 +39,8 @@ impl  Day3 {
         (v, vs)
     }
 
-    fn get_ratings(&self, lines: &Vec<String>, is_most: bool) -> String {
-        let mut ans = lines.clone();
+    fn get_ratings(&self, lines: &[String], is_most: bool) -> String {
+        let mut ans = lines.to_owned();
 
         for i in 0..self.n_digits {
             let mut counter = 0;
@@ -72,10 +72,10 @@ impl Runnable for Day3 {
         let mut gamma = 0;
         let mut eps = 0;
         let half = v[self.n_digits]/2;
-        for i in 0..self.n_digits {
+        for i in v.iter().take(self.n_digits) {
             gamma *= 2;
             eps *= 2;
-            if v[i] > half {
+            if *i > half {
                 gamma += 1;
             } else {
                 eps += 1;

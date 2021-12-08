@@ -76,9 +76,8 @@ impl Board {
     pub fn score(&self) -> i32 {
         let mut sum = 0;
         for row in &self.board {
-            sum += row.into_iter().filter(|x| **x > 0).fold(0, |acc, x| acc + x);
+            sum += row.iter().filter(|x| **x > 0).sum::<i32>();
         }
-        println!("SUM {}", sum);
         sum*self.win_val
     }
 }
@@ -87,7 +86,7 @@ impl Board {
 impl  Day4 {
     pub fn new(typ: &str) -> Day4 {
         Day4 {
-            file: String::from("./src/day4/".to_owned() + typ + ".txt"),
+            file: "./src/day4/".to_owned() + typ + ".txt",
         }
     }
 
@@ -136,9 +135,15 @@ impl Runnable for Day4 {
         }
 
         bs.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        for b in bs.into_iter().rev() {
+        for b in bs.iter() {
             if b.is_bingo {
-                println!("Final Score: {}, winning {}, order {}", b.score(), b.win_val, b.win_turn);
+                println!("First board score: {}, winning {}, order {}", b.score(), b.win_val, b.win_turn);
+                break;
+            }
+        }
+        for b in bs.iter().rev() {
+            if b.is_bingo {
+                println!("Last board score: {}, winning {}, order {}", b.score(), b.win_val, b.win_turn);
                 break;
             }
         }

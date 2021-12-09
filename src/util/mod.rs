@@ -1,8 +1,8 @@
 use std::fs::File;
+use std::io::BufRead;
 use std::io::BufReader;
 use std::io::Lines;
 use std::io::Result;
-use std::io::BufRead;
 use std::path::Path;
 
 pub trait Runnable {

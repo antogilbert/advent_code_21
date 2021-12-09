@@ -1,3 +1,5 @@
+use std::{path::PathBuf, str::FromStr};
+
 use crate::util;
 
 use util::Runnable;
@@ -11,7 +13,7 @@ struct Board {
     board: Vec<Vec<i32>>,
     pub is_bingo: bool,
     pub win_turn: u32,
-    pub win_val: i32
+    pub win_val: i32,
 }
 
 impl PartialOrd for Board {
@@ -26,10 +28,10 @@ impl Board {
             board: Vec::new(),
             is_bingo: false,
             win_turn: u32::MAX,
-            win_val: 0
+            win_val: 0,
         }
-    }    
-    
+    }
+
     pub fn add_row(&mut self, row: Vec<i32>) {
         assert!(self.board.len() < 5);
         self.board.push(row);
@@ -40,7 +42,9 @@ impl Board {
             for i in row {
                 if *i == num {
                     *i = -(*i);
-                    if *i == 0 { *i = -1 }
+                    if *i == 0 {
+                        *i = -1
+                    }
                     return;
                 }
             }
@@ -48,9 +52,8 @@ impl Board {
     }
 
     pub fn check_bingo(&mut self) {
-        let mut bingo = true;
         for row in &self.board {
-            bingo = true;
+            let mut bingo = true;
             for i in row {
                 bingo = bingo && (*i < 0);
             }
@@ -61,7 +64,7 @@ impl Board {
         }
 
         for i in 0..self.board.len() {
-            bingo = true;
+            let mut bingo = true;
             for j in 0..self.board.len() {
                 bingo = bingo && (self.board[j][i] < 0)
             }
@@ -78,15 +81,16 @@ impl Board {
         for row in &self.board {
             sum += row.iter().filter(|x| **x > 0).sum::<i32>();
         }
-        sum*self.win_val
+        sum * self.win_val
     }
 }
 
-
-impl  Day4 {
+impl Day4 {
     pub fn new(typ: &str) -> Day4 {
+        let mut path = PathBuf::from_str(file!()).unwrap();
+        path.pop();
         Day4 {
-            file: "./src/day4/".to_owned() + typ + ".txt",
+            file: String::from(path.to_str().unwrap()) + "/" + typ + ".txt",
         }
     }
 
@@ -107,7 +111,10 @@ impl  Day4 {
                     b.push(Board::new());
                     board_num += 1;
                 } else {
-                    let row = s.split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect();
+                    let row = s
+                        .split_whitespace()
+                        .map(|x| x.parse::<i32>().unwrap())
+                        .collect();
                     b[board_num as usize].add_row(row);
                 }
             }
@@ -120,9 +127,7 @@ impl Runnable for Day4 {
     fn run(&self) {
         let (v, mut bs) = self.read();
 
-        let mut winning= 0;
         for (c, i) in v.into_iter().enumerate() {
-            winning = i as i32;
             for b in bs.iter_mut() {
                 if b.is_bingo {
                     b.win_turn = std::cmp::min(b.win_turn, c as u32);
@@ -130,20 +135,30 @@ impl Runnable for Day4 {
                 }
                 b.mark(i as i32);
                 b.check_bingo();
-                b.win_val = winning;
+                b.win_val = i as i32;
             }
         }
 
         bs.sort_by(|a, b| a.partial_cmp(b).unwrap());
         for b in bs.iter() {
             if b.is_bingo {
-                println!("First board score: {}, winning {}, order {}", b.score(), b.win_val, b.win_turn);
+                println!(
+                    "Day4 Part 1 - First board score: {}, winning {}, order {}",
+                    b.score(),
+                    b.win_val,
+                    b.win_turn
+                );
                 break;
             }
         }
         for b in bs.iter().rev() {
             if b.is_bingo {
-                println!("Last board score: {}, winning {}, order {}", b.score(), b.win_val, b.win_turn);
+                println!(
+                    "Day4 Part 2 - Last board score: {}, winning {}, order {}",
+                    b.score(),
+                    b.win_val,
+                    b.win_turn
+                );
                 break;
             }
         }
@@ -186,7 +201,7 @@ mod tests {
 
         let row = vec![1, 2, 3, 4, 5];
         for i in 1..6 {
-            b.add_row((&row).into_iter().map(|x| i*x).collect());
+            b.add_row((&row).into_iter().map(|x| i * x).collect());
         }
 
         b.mark(1);

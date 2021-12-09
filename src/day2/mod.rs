@@ -1,3 +1,5 @@
+use std::{path::PathBuf, str::FromStr};
+
 use std::collections::HashMap;
 
 use crate::util;
@@ -15,7 +17,7 @@ pub struct Day2 {
 enum Direction {
     U,
     D,
-    F
+    F,
 }
 struct Instruction {
     pub dir: Direction,
@@ -25,18 +27,29 @@ struct Instruction {
 impl Instruction {
     pub fn new(direction: &str, amt: i32) -> Instruction {
         match direction {
-            "forward" => Instruction {dir: Direction::F, amt},
-            "up" => Instruction {dir: Direction::U, amt},
-            "down" => Instruction {dir: Direction::D, amt},
-            _ => panic!("WRONG DIRECTION")
+            "forward" => Instruction {
+                dir: Direction::F,
+                amt,
+            },
+            "up" => Instruction {
+                dir: Direction::U,
+                amt,
+            },
+            "down" => Instruction {
+                dir: Direction::D,
+                amt,
+            },
+            _ => panic!("WRONG DIRECTION"),
         }
     }
 }
 
 impl Day2 {
     pub fn new(typ: &str) -> Day2 {
+        let mut path = PathBuf::from_str(file!()).unwrap();
+        path.pop();
         Day2 {
-            file: "./src/day2/".to_owned() + typ + ".txt",
+            file: String::from(path.to_str().unwrap()) + "/" + typ + ".txt",
         }
     }
 
@@ -48,16 +61,16 @@ impl Day2 {
                 let l = line.unwrap();
                 let mut t = l.split_whitespace();
                 let k = t.next().unwrap();
-                let v =t.next().unwrap().parse::<i32>().unwrap();
+                let v = t.next().unwrap().parse::<i32>().unwrap();
                 if let Some(value) = map.get_mut(k) {
                     *value += v;
                 } else {
                     map.insert(k.to_owned(), v);
-                } 
+                }
                 vec.push(Instruction::new(k, v));
             }
         }
-       (map, vec) 
+        (map, vec)
     }
 }
 
@@ -75,12 +88,15 @@ impl Runnable for Day2 {
         let mut hor = 0;
         for ins in v {
             match ins.dir {
-                Direction::D => {aim += ins.amt},
-                Direction::U => {aim -= ins.amt},
-                Direction::F => {hor += ins.amt; depth += aim * ins.amt},
+                Direction::D => aim += ins.amt,
+                Direction::U => aim -= ins.amt,
+                Direction::F => {
+                    hor += ins.amt;
+                    depth += aim * ins.amt
+                }
             }
         }
 
-        println!("Day2 Part 2 - H*D: {} * {} = {}", hor, depth, hor* depth);
+        println!("Day2 Part 2 - H*D: {} * {} = {}", hor, depth, hor * depth);
     }
 }

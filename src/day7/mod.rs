@@ -1,4 +1,4 @@
-use std::{path::{Path, PathBuf}, str::FromStr};
+use std::{path::PathBuf, str::FromStr};
 
 use crate::util;
 
@@ -8,7 +8,7 @@ pub struct Day7 {
     file: String,
 }
 
-impl  Day7 {
+impl Day7 {
     pub fn new(typ: &str) -> Day7 {
         let mut path = PathBuf::from_str(file!()).unwrap();
         path.pop();
@@ -22,7 +22,10 @@ impl  Day7 {
         if let Ok(lines) = util::read_lines(&self.file) {
             for line in lines {
                 let s = line.unwrap();
-                let mut k = s.split(',').map(|c| c.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+                let mut k = s
+                    .split(',')
+                    .map(|c| c.parse::<i32>().unwrap())
+                    .collect::<Vec<i32>>();
                 v.append(&mut k);
             }
         }
@@ -42,7 +45,7 @@ impl Runnable for Day7 {
             for x in &v {
                 let m = (x - (i as i32)).abs();
                 *c += m;
-                pos2[i] += (m+1)*m/2
+                pos2[i] += (m + 1) * m / 2
             }
         }
 

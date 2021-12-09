@@ -11,9 +11,7 @@ use util::Runnable;
 
 fn main() {
     let day = std::env::args().nth(1).expect("NO DAY PROVIDED");
-    let typ = std::env::args().nth(2).expect("NO DAY PROVIDED");
-    println!("Running day #{}", day);
-
+    let typ = std::env::args().nth(2).expect("NO INPUT PROVIDED");
 
     let runners: Vec<Box<dyn Runnable>> = vec![
         Box::new(day1::Day1::new(&typ)),
@@ -25,5 +23,12 @@ fn main() {
         Box::new(day7::Day7::new(&typ)),
     ];
 
-    runners[day.parse::<usize>().unwrap() - 1].run();
+    match day.parse::<usize>() {
+        Ok(d) => {
+            runners[d - 1].run();
+        }
+        Err(_) => {
+            runners.iter().for_each(|r| r.run());
+        }
+    }
 }

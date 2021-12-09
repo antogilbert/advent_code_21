@@ -1,3 +1,5 @@
+use std::{path::PathBuf, str::FromStr};
+
 use crate::util;
 
 use util::Runnable;
@@ -6,17 +8,21 @@ pub struct Day1 {
     file: String,
 }
 
-impl  Day1 {
+impl Day1 {
     pub fn new(typ: &str) -> Day1 {
+        let mut path = PathBuf::from_str(file!()).unwrap();
+        path.pop();
         Day1 {
-            file: "./src/day1/".to_owned() + typ + ".txt",
+            file: String::from(path.to_str().unwrap()) + "/" + typ + ".txt",
         }
     }
 
     fn read(&self) -> Vec<i32> {
         let mut v = Vec::new();
         if let Ok(lines) = util::read_lines(&self.file) {
-            v = lines.map(|line| line.unwrap().parse::<i32>().unwrap()).collect();
+            v = lines
+                .map(|line| line.unwrap().parse::<i32>().unwrap())
+                .collect();
         }
         v
     }
@@ -34,13 +40,13 @@ impl Runnable for Day1 {
             previous = *i;
         }
 
-        println!("Day1 Part 1- Increments: {}", increments);
+        println!("Day1 Part 1 - Increments: {}", increments);
 
         let mut sliding_inc = 0;
         let mut sliding_prev = v[0] + v[1] + v[2];
 
         for i in 3..v.len() {
-            let new_val = sliding_prev + v[i] - v[i-3];
+            let new_val = sliding_prev + v[i] - v[i - 3];
             if new_val > sliding_prev {
                 sliding_inc += 1;
             }

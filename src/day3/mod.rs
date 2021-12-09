@@ -1,3 +1,5 @@
+use std::{path::PathBuf, str::FromStr};
+
 use crate::util;
 
 use util::Runnable;
@@ -7,16 +9,18 @@ pub struct Day3 {
     n_digits: usize,
 }
 
-impl  Day3 {
+impl Day3 {
     pub fn new(typ: &str) -> Day3 {
         let nd = match typ {
             "sample" => 5,
             "input" => 12,
-            _ => panic!("UNKNOWN TYPE")
+            _ => panic!("UNKNOWN TYPE"),
         };
 
+        let mut path = PathBuf::from_str(file!()).unwrap();
+        path.pop();
         Day3 {
-            file: "./src/day3/".to_owned() + typ + ".txt",
+            file: String::from(path.to_str().unwrap()) + "/" + typ + ".txt",
             n_digits: nd,
         }
     }
@@ -49,12 +53,18 @@ impl  Day3 {
             }
 
             let len = ans.len() as u32;
-            let x = if counter*2 >= len {1} else {0};
+            let x = if counter * 2 >= len { 1 } else { 0 };
 
             if is_most {
-                ans = ans.into_iter().filter(|s| s.chars().nth(i).unwrap().to_digit(10).unwrap() == x).collect();
+                ans = ans
+                    .into_iter()
+                    .filter(|s| s.chars().nth(i).unwrap().to_digit(10).unwrap() == x)
+                    .collect();
             } else {
-                ans = ans.into_iter().filter(|s| s.chars().nth(i).unwrap().to_digit(10).unwrap() != x).collect();
+                ans = ans
+                    .into_iter()
+                    .filter(|s| s.chars().nth(i).unwrap().to_digit(10).unwrap() != x)
+                    .collect();
             }
 
             if ans.len() == 1 {
@@ -71,7 +81,7 @@ impl Runnable for Day3 {
         let (v, vs) = self.read();
         let mut gamma = 0;
         let mut eps = 0;
-        let half = v[self.n_digits]/2;
+        let half = v[self.n_digits] / 2;
         for i in v.iter().take(self.n_digits) {
             gamma *= 2;
             eps *= 2;
@@ -82,7 +92,12 @@ impl Runnable for Day3 {
             }
         }
 
-        println!("Day3 Part 1 - consumption: v {:?} g {} e {} g*e {}", v, gamma, eps, gamma*eps);
+        println!(
+            "Day3 Part 1 - consumption: g {} e {} g*e {}",
+            gamma,
+            eps,
+            gamma * eps
+        );
 
         let oxy_str = self.get_ratings(&vs, true);
         let co2_str = self.get_ratings(&vs, false);
@@ -98,6 +113,11 @@ impl Runnable for Day3 {
             co2 += co2_str.chars().nth(i).unwrap().to_digit(10).unwrap();
         }
 
-        println!("Day3 Part 2 - Oxygen {} CO2 {}, LSR {}", oxy, co2, oxy*co2);
+        println!(
+            "Day3 Part 2 - Oxygen {} CO2 {}, LSR {}",
+            oxy,
+            co2,
+            oxy * co2
+        );
     }
 }

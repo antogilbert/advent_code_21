@@ -3,6 +3,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 mod util;
 
 use util::Runnable;
@@ -19,6 +20,7 @@ fn main() {
         Box::new(day3::Day3::new(&typ)),
         Box::new(day4::Day4::new(&typ)),
         Box::new(day5::Day5::new(&typ)),
+        Box::new(day6::Day6::new(&typ)),
     ];
 
     runners[day.parse::<usize>().unwrap() - 1].run();

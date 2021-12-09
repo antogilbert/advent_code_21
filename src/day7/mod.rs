@@ -36,13 +36,17 @@ impl Runnable for Day7 {
         let max = *v.iter().max().unwrap();
 
         let mut pos = vec![0; (max + 1) as usize];
+        let mut pos2 = vec![0; (max + 1) as usize];
 
         for (i, c) in pos.iter_mut().enumerate() {
             for x in &v {
-                *c += (x - (i as i32)).abs();
+                let m = (x - (i as i32)).abs();
+                *c += m;
+                pos2[i] += (m+1)*m/2
             }
         }
 
         println!("Day7 Part 1 - Crab fuel: {}", pos.iter().min().unwrap());
+        println!("Day7 Part 2 - Crab fuel: {}", pos2.iter().min().unwrap());
     }
 }

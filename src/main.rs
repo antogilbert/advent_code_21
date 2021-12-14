@@ -5,6 +5,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 mod util;
 
 use util::Runnable;
@@ -21,6 +22,7 @@ fn main() {
         Box::new(day5::Day5::new(&typ)),
         Box::new(day6::Day6::new(&typ)),
         Box::new(day7::Day7::new(&typ)),
+        Box::new(day8::Day8::new(&typ)),
     ];
 
     match day.parse::<usize>() {

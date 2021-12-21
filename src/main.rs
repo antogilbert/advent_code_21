@@ -15,6 +15,7 @@ fn main() {
         Box::new(day7::Day7::new(&typ)),
         Box::new(day8::Day8::new(&typ)),
         Box::new(day9::Day9::new(&typ)),
+        Box::new(day10::Day10::new(&typ)),
     ];
 
     match day.parse::<usize>() {

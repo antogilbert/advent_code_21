@@ -34,6 +34,17 @@ impl Octopus {
         self.value = 0;
         self.flashed = false;
     }
+
+    fn needs_neighbours_processing(&mut self) -> bool {
+        if !self.flashed {
+            self.increment();
+            if self.value > 9 {
+                self.flashed = true;
+                return true;
+            }
+        }
+        false
+    }
 }
 
 impl Day11 {
@@ -90,35 +101,23 @@ impl Day11 {
         if coord.1 > 0 {
             let left = (coord.0, coord.1 - 1);
             let x = &mut grid[left.0][left.1];
-            if !x.flashed {
-                x.increment();
-                if x.value > 9 {
-                    x.flashed = true;
-                    self.process_neighbours(left, grid);
-                }
+            if x.needs_neighbours_processing() {
+                self.process_neighbours(left, grid);
             }
 
             if coord.0 > 0 {
                 let u_left = (coord.0 - 1, left.1);
                 let x = &mut grid[u_left.0][u_left.1];
-                if !x.flashed {
-                    x.increment();
-                    if x.value > 9 {
-                        x.flashed = true;
-                        self.process_neighbours(u_left, grid);
-                    }
+                if x.needs_neighbours_processing() {
+                    self.process_neighbours(u_left, grid);
                 }
             }
 
             if coord.0 < grid.len() - 1 {
                 let d_left = (coord.0 + 1, left.1);
                 let x = &mut grid[d_left.0][d_left.1];
-                if !x.flashed {
-                    x.increment();
-                    if x.value > 9 {
-                        x.flashed = true;
-                        self.process_neighbours(d_left, grid);
-                    }
+                if x.needs_neighbours_processing() {
+                    self.process_neighbours(d_left, grid);
                 }
             }
         }
@@ -126,35 +125,23 @@ impl Day11 {
         if coord.0 < grid[0].len() - 1 {
             let right = (coord.0, coord.1 + 1);
             let x = &mut grid[right.0][right.1];
-            if !x.flashed {
-                x.increment();
-                if x.value > 9 {
-                    x.flashed = true;
-                    self.process_neighbours(right, grid);
-                }
+            if x.needs_neighbours_processing() {
+                self.process_neighbours(right, grid);
             }
 
             if coord.0 > 0 {
                 let u_right = (coord.0 - 1, right.1);
                 let x = &mut grid[u_right.0][u_right.1];
-                if !x.flashed {
-                    x.increment();
-                    if x.value > 9 {
-                        x.flashed = true;
-                        self.process_neighbours(u_right, grid);
-                    }
+                if x.needs_neighbours_processing() {
+                    self.process_neighbours(u_right, grid);
                 }
             }
 
             if coord.0 < grid.len() - 1 {
                 let d_right = (coord.0 + 1, right.1);
                 let x = &mut grid[d_right.0][d_right.1];
-                if !x.flashed {
-                    x.increment();
-                    if x.value > 9 {
-                        x.flashed = true;
-                        self.process_neighbours(d_right, grid);
-                    }
+                if x.needs_neighbours_processing() {
+                    self.process_neighbours(d_right, grid);
                 }
             }
         }
@@ -162,24 +149,16 @@ impl Day11 {
         if coord.0 > 0 {
             let up = (coord.0 - 1, coord.1);
             let x = &mut grid[up.0][up.1];
-            if !x.flashed {
-                x.increment();
-                if x.value > 9 {
-                    x.flashed = true;
-                    self.process_neighbours(up, grid);
-                }
+            if x.needs_neighbours_processing() {
+                self.process_neighbours(up, grid);
             }
         }
 
         if coord.0 < grid.len() - 1 {
             let down = (coord.0 + 1, coord.1);
             let x = &mut grid[down.0][down.1];
-            if !x.flashed {
-                x.increment();
-                if x.value > 9 {
-                    x.flashed = true;
-                    self.process_neighbours(down, grid);
-                }
+            if x.needs_neighbours_processing() {
+                self.process_neighbours(down, grid);
             }
         }
     }
@@ -204,14 +183,27 @@ impl Runnable for Day11 {
         let v = self.read();
         let mut flashes = 0;
         let mut grid = self.get_grid(&v);
+        let mut grid2 = grid.clone();
 
         const STEPS: u32 = 100;
 
         for _ in 0..STEPS {
             self.increment_energy(&mut grid);
-            flashes += self.count_flashes(&mut grid);
+            let step_flash = self.count_flashes(&mut grid);
+            flashes += step_flash;
         }
 
         println!("Day11 Part 1 - Total flashes: {}", flashes);
+
+        let mut step = (0, false);
+        while !step.1 {
+            self.increment_energy(&mut grid2);
+            let step_flash = self.count_flashes(&mut grid2);
+            step.0 += 1;
+            if step_flash == 100 {
+                step.1 = true;
+            }
+        }
+        println!("Day11 Part 2 - Full flash step: {}", step.0);
     }
 }

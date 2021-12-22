@@ -1,4 +1,4 @@
-use std::{path::PathBuf, str::FromStr, collections::HashMap};
+use std::{collections::HashMap, path::PathBuf, str::FromStr};
 
 use crate::util;
 
@@ -6,6 +6,12 @@ use util::Runnable;
 
 pub struct Day10 {
     file: String,
+}
+
+#[derive(Debug)]
+struct Score {
+    syntax: u32,
+    autocomplete: u32,
 }
 
 impl Day10 {
@@ -32,36 +38,82 @@ impl Day10 {
 impl Runnable for Day10 {
     fn run(&self) {
         let v = self.read();
-        let closed: HashMap<char, u32> = [
-            (')', 3),
-            (']', 57),
-            ('}', 1197),
-            ('>', 25137),
-        ].into_iter().collect();
+        let score: HashMap<char, Score> = [
+            (
+                ')',
+                Score {
+                    syntax: 3,
+                    autocomplete: 1,
+                },
+            ),
+            (
+                ']',
+                Score {
+                    syntax: 57,
+                    autocomplete: 2,
+                },
+            ),
+            (
+                '}',
+                Score {
+                    syntax: 1197,
+                    autocomplete: 3,
+                },
+            ),
+            (
+                '>',
+                Score {
+                    syntax: 25137,
+                    autocomplete: 4,
+                },
+            ),
+        ]
+        .into_iter()
+        .collect();
 
-        let open: HashMap<char, char> = [
-            (')', '('),
-            (']', '['),
-            ('}', '{'),
-            ('>', '<'),
-        ].into_iter().collect();
+        let open: HashMap<char, char> = [(')', '('), (']', '['), ('}', '{'), ('>', '<')]
+            .into_iter()
+            .collect();
 
-        let mut total = 0;
+        let closed: HashMap<char, char> = open.iter().map(|k| (*k.1, *k.0)).collect();
+
+        let mut syntax = 0;
+        let mut autocomplete = Vec::new();
+
         for s in v {
             let mut stack = Vec::new();
 
             for c in s.chars() {
-                if !closed.contains_key(&c) {
+                if !open.contains_key(&c) {
                     stack.push(c);
-                } else {
-                    let o = stack.pop().unwrap();
-                    if *open.get(&c).unwrap() != o {
-                        total += closed.get(&c).unwrap();
+                } else if let Some(o) = stack.pop() {
+                    if let Some(par) = open.get(&c) {
+                        if *par != o {
+                            syntax += score.get(&c).unwrap().syntax;
+                            stack.clear();
+                            break;
+                        }
                     }
                 }
             }
+
+            let mut stackscore: u64 = 0;
+            while let Some(c) = stack.pop() {
+                if let Some(sc) = closed.get(&c) {
+                    stackscore *= 5;
+                    stackscore += score.get(sc).unwrap().autocomplete as u64;
+                }
+            }
+
+            if stackscore > 0 {
+                autocomplete.push(stackscore);
+            }
         }
 
-        println!("Day10 Part 1 - Total: {}", total);
+        autocomplete.sort();
+
+        println!("Day10 Part 1 - Total: {}", syntax);
+        let i: usize = (autocomplete.len()-1)/2;
+        println!("Day10 Part 2 - Total: {:?}", autocomplete[i]);
     }
 }

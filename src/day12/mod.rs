@@ -62,6 +62,32 @@ impl Day12 {
         }
         paths
     }
+
+    fn dfs2(&self, node: &str, map: &HashMap<String, Vec<String>>, visited: &Vec<String>, is_small_cave_visited_twice: bool) -> Vec<String> {
+        let mut paths = Vec::new();
+        let mut new_vist = visited.clone();
+        new_vist.push(String::from(node));
+
+        if node == END {
+            let path = new_vist.join(",");
+            return vec![path];
+        }
+
+        let next = map.get(node).unwrap();
+        for n in next {
+            if n != START {
+                if n.chars().nth(0).unwrap().is_uppercase() || !visited.contains(n)  {
+                    let temp_paths = self.dfs2(n, map, &new_vist, is_small_cave_visited_twice);
+                    paths.extend(temp_paths);
+                } else if !is_small_cave_visited_twice {
+                    let temp_paths = self.dfs2(n, map, &new_vist, true);
+                    paths.extend(temp_paths);
+                }
+            }
+        }
+
+        paths
+    }
 } 
 
 impl Runnable for Day12 {
@@ -70,5 +96,9 @@ impl Runnable for Day12 {
         let paths = self.dfs(START, &v, &vec!["".to_owned()]);
 
         println!("Day12 Part 1 - Total paths: {:?}", paths.len());
+
+        let new_paths = self.dfs2(START, &v, &vec!["".to_owned()], false);
+        
+        println!("Day12 Part 2 - Total paths: {:?}", new_paths.len());
     }
 }

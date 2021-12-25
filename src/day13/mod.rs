@@ -1,4 +1,4 @@
-use std::{path::PathBuf, str::FromStr, collections::HashSet, borrow::BorrowMut};
+use std::{path::PathBuf, str::FromStr, collections::HashSet};
 
 use crate::util;
 
@@ -40,6 +40,12 @@ impl Point {
             self.x = axis - dist;
         }
     }
+
+    fn transpose(&mut self) {
+        let x = self.x;
+        self.x = self.y;
+        self.y = x;
+    }
 }
 
 #[derive(Debug)]
@@ -52,39 +58,6 @@ impl Fold {
     fn new(dir: String, pos: u32) -> Self {
         Fold { dir, pos }
     }
-}
-
-#[derive(Debug)]
-struct Paper {
-    grid: HashSet<Point>,
-}
-
-impl Paper {
-    fn new() -> Self {
-        Paper {grid: HashSet::new()}
-    }
-
-    fn add(&mut self, p: &Point) {
-        self.grid.insert(p.clone());
-    }
-
-    /*
-    fn fold(&mut self, f: &Fold) {
-        match f.dir.as_str() {
-            "y" => {self.fold_up(f.pos);},
-            "x" => {self.fold_left(f.pos);},
-            _ => panic!("STEREONZO, NUN C'E' STA DIREZIONE.")
-        }
-    }
-
-    fn fold_up(&mut self, pos: u32) {
-        self.grid.into_iter().for_each(|mut p| p.fold_up(pos));
-    }
-
-    fn fold_left(&mut self, pos: u32) {
-        self.grid.into_iter().for_each(|mut p| p.fold_left(pos));
-    }
-    */
 }
 
 impl Day13 {
@@ -128,19 +101,28 @@ impl Runnable for Day13 {
 
         let mut paper =  HashSet::new();
 
-        // f.iter().for_each(|fold| paper.fold(fold));
-
-        let fold = f.first().unwrap();
         for pt in &mut p {
-            // for fold in &f {
+            for fold in &f {
                 pt.fold(fold);
-            // }
+            }
         }
 
+        p.iter_mut().for_each(|pt| pt.transpose());
         p.iter().for_each(|pt| {paper.insert(pt.clone());});
 
-        // println!("Day13 Part 1 - Total: {:?} \nfolds {:?}", p, f);
         println!("Day13 Part 1 - Total: {:?}", paper.len());
+        let max_x = p.iter().max_by(|a, b| a.x.cmp(&b.x)).unwrap().x;
+        let max_y = p.iter().max_by(|a, b| a.y.cmp(&b.y)).unwrap().y;
+        let mut grid = vec![vec![' '; max_y as usize + 1]; max_x as usize + 1];
+
+        paper.iter().for_each(|p| grid[p.x as usize][p.y as usize] = '#');
+
+        for row in grid {
+            for c in row {
+                print!("{}",c);
+            }
+            print!("\n");
+        }
     }
 }
 

@@ -117,6 +117,7 @@ impl Runnable for Day13 {
 
         paper.iter().for_each(|p| grid[p.x as usize][p.y as usize] = '#');
 
+        println!("Day13 Part 2 - Password:");
         for row in grid {
             for c in row {
                 print!("{}",c);

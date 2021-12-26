@@ -1,4 +1,8 @@
-use std::{collections::HashMap, path::PathBuf, str::FromStr};
+use std::{
+    collections::{BinaryHeap, HashMap},
+    path::PathBuf,
+    str::FromStr,
+};
 
 use crate::util;
 
@@ -6,12 +10,6 @@ use util::Runnable;
 
 pub struct Day15 {
     file: String,
-}
-
-#[derive(Debug)]
-struct Score {
-    syntax: u32,
-    autocomplete: u32,
 }
 
 impl Day15 {
@@ -23,97 +21,136 @@ impl Day15 {
         }
     }
 
-    fn read(&self) -> Vec<String> {
+    fn read(&self) -> Vec<Vec<u32>> {
         let mut v = Vec::new();
         if let Ok(lines) = util::read_lines(&self.file) {
             for line in lines {
                 let s = line.unwrap();
-                v.push(s);
+                v.push(s.chars().map(|c| c.to_digit(10).unwrap()).collect());
             }
         }
         v
+    }
+
+    fn neighbours(&self, node: &(usize, usize), grid: &[Vec<u32>]) -> Vec<(usize, usize)> {
+        let mut neighbours = Vec::new();
+
+        // up 
+        if node.0 > 0 {
+            neighbours.push((node.0 - 1, node.1));
+        }
+        // left
+        if node.1 > 0 {
+            neighbours.push((node.0, node.1 - 1));
+        }
+        // down 
+        if node.0 < grid[0].len() - 1 {
+            neighbours.push((node.0 + 1, node.1));
+        }
+        // right 
+        if node.1 < grid.len() - 1 {
+            neighbours.push((node.0, node.1 + 1));
+        }
+
+        neighbours
+    }
+
+    fn dijkstra(&self, grid: &[Vec<u32>]) -> u32 {
+        let max_r = grid.len();
+        let max_c = grid[0].len();
+        let goal = (max_r - 1, max_c - 1);
+
+        let mut provenance = HashMap::new();
+
+        let mut frontier = BinaryHeap::new();
+        frontier.push(Node::new((0, 0), 0));
+
+        let mut risk= HashMap::new();
+        risk.entry((0, 0)).or_insert(0);
+
+        while let Some(node) = frontier.pop() {
+            if node.coords == goal {
+                break;
+            }
+
+            for next in self.neighbours(&node.coords, grid) {
+                let new_risk = *risk.get(&node.coords).unwrap() + grid[next.0][next.1];
+
+                if !risk.contains_key(&next) || new_risk < *risk.get(&next).unwrap() {
+                    risk.insert(next, new_risk);
+                    frontier.push(Node::new(next, new_risk as usize));
+                    provenance.insert(next, node.clone());
+                }
+            }
+        }
+        *risk.get(&goal).unwrap()
+    }
+}
+
+#[derive(PartialEq, Eq, Clone)]
+struct Node {
+    coords: (usize, usize),
+    priority: usize,
+}
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.priority.cmp(&self.priority)
+    }
+}
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        other.priority.partial_cmp(&self.priority)
+    }
+}
+
+impl Node {
+    fn new(coords: (usize, usize), priority: usize) -> Self {
+        Node { coords, priority }
     }
 }
 
 impl Runnable for Day15 {
     fn run(&self) {
-        let v = self.read();
-        let score: HashMap<char, Score> = [
-            (
-                ')',
-                Score {
-                    syntax: 3,
-                    autocomplete: 1,
-                },
-            ),
-            (
-                ']',
-                Score {
-                    syntax: 57,
-                    autocomplete: 2,
-                },
-            ),
-            (
-                '}',
-                Score {
-                    syntax: 1197,
-                    autocomplete: 3,
-                },
-            ),
-            (
-                '>',
-                Score {
-                    syntax: 25137,
-                    autocomplete: 4,
-                },
-            ),
-        ]
-        .into_iter()
-        .collect();
+        let grid = self.read();
 
-        let open: HashMap<char, char> = [(')', '('), (']', '['), ('}', '{'), ('>', '<')]
-            .into_iter()
-            .collect();
+        println!(
+            "Day15 Part 1 - Total risk: {:?}", self.dijkstra(&grid)
+        );
 
-        let closed: HashMap<char, char> = open.iter().map(|k| (*k.1, *k.0)).collect();
+        let max_r = grid.len();
+        let max_c = grid[0].len();
+        let mut full_grid = vec![vec![0; 5 * max_c]; 5 * max_r];
 
-        let mut syntax = 0;
-        let mut autocomplete = Vec::new();
-
-        for s in v {
-            let mut stack = Vec::new();
-
-            for c in s.chars() {
-                if !open.contains_key(&c) {
-                    stack.push(c);
-                } else if let Some(o) = stack.pop() {
-                    if let Some(par) = open.get(&c) {
-                        if *par != o {
-                            syntax += score.get(&c).unwrap().syntax;
-                            stack.clear();
-                            break;
-                        }
+        // First tile row:
+        for k in 0..5_usize {
+            for i in 0..max_r {
+                for j in 0..max_c {
+                    let mut v = grid[i][j] as usize + k;
+                    if v > 9 {
+                        v -= 9;
                     }
+                    full_grid[i][max_c * k + j] = v as u32;
                 }
-            }
-
-            let mut stackscore: u64 = 0;
-            while let Some(c) = stack.pop() {
-                if let Some(sc) = closed.get(&c) {
-                    stackscore *= 5;
-                    stackscore += score.get(sc).unwrap().autocomplete as u64;
-                }
-            }
-
-            if stackscore > 0 {
-                autocomplete.push(stackscore);
             }
         }
 
-        autocomplete.sort_unstable();
+        for k in 1..5_usize {
+            for i in 0..max_r {
+                for j in 0..full_grid[0].len() {
+                    let mut v = full_grid[i][j] as usize + k;
+                    if v > 9 {
+                        v -= 9;
+                    }
 
-        println!("Day10 Part 1 - Total: {}", syntax);
-        let i: usize = (autocomplete.len()-1)/2;
-        println!("Day10 Part 2 - Total: {:?}", autocomplete[i]);
+                    full_grid[max_r * k + i][j] = v as u32;
+                }
+            }
+        }
+
+        println!(
+            "Day15 Part 2 - Total risk: {:?}", self.dijkstra(&full_grid)
+        );
     }
 }

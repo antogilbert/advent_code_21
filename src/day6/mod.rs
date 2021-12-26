@@ -36,10 +36,11 @@ impl Day6 {
 impl Runnable for Day6 {
     fn run(&self) {
         let mut v = self.read();
-        const DAYS: u32 = 80;
+        let v2 = v.clone();
+        const DAYS_1: u32 = 80;
 
         let mut spawn = 0;
-        for _ in 0..DAYS {
+        for _ in 0..DAYS_1 {
             // print!("Iteration {}: {:?}", i, v);
             v.iter_mut()
                 .for_each(|f| if *f > 0 { *f -= 1 } else { *f = 6 });
@@ -51,5 +52,21 @@ impl Runnable for Day6 {
         }
 
         println!("Day6 Part 1 - Lanternfish: {}", v.len());
+
+        const DAYS_2: usize = 256;
+        let mut total = 0;
+        let mut fish_set: Vec<u64> = vec![0; DAYS_2 + 8 + 1];
+        v2.iter().for_each(|f| fish_set[*f as usize] += 1);
+
+        total += v2.len() as u64;
+
+        for i in 0..DAYS_2 {
+            let fish = fish_set[i];
+            fish_set[i + 6 + 1] += fish;
+            fish_set[i + 8 + 1] += fish;
+            total += fish;
+        }
+
+        println!("Day6 Part 2 - Lanternfish: {}", total);
     }
 }

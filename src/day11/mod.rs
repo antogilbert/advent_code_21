@@ -67,13 +67,12 @@ impl Day11 {
         v
     }
 
-    fn get_grid(&self, ss: &Vec<String>) -> Vec<Vec<Octopus>> {
+    fn get_grid(&self, ss: &[String]) -> Vec<Vec<Octopus>> {
         let mut v = Vec::new();
         let size = ss[0].len() + 2;
         v.push(vec![Octopus::new(9, true); size]);
         for s in ss {
-            let mut row = Vec::new();
-            row.push(Octopus::new(9, true));
+            let mut row = vec![Octopus::new(9, true)];
             for c in s.chars() {
                 row.push(Octopus::default(c.to_digit(10).unwrap()));
             }
@@ -89,7 +88,7 @@ impl Day11 {
             for j in 1..(grid[0].len() - 1) {
                 let x = &mut grid[i][j];
                 x.increment();
-                if x.value > 9 && x.flashed == false {
+                if x.value > 9 && !x.flashed {
                     x.flashed = true;
                     self.process_neighbours((i, j), grid);
                 }

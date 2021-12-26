@@ -29,21 +29,21 @@ impl Day12 {
                 if vs[0] != END {
                     v.entry(vs[0].clone())
                         .and_modify(|s: &mut Vec<String>| s.push(vs[1].clone()))
-                        .or_insert(vec![vs[1].clone()]);
+                        .or_insert_with(|| vec![vs[1].clone()]);
                 }
                 if vs[0] != START && vs[1] != END {
                     v.entry(vs[1].clone())
                         .and_modify(|s| s.push(vs[0].clone()))
-                        .or_insert(vec![vs[0].clone()]);
+                        .or_insert_with(|| vec![vs[0].clone()]);
                 }
             }
         }
         v
     }
 
-    fn dfs(&self, node: &str, map: &HashMap<String, Vec<String>>, visited: &Vec<String>) -> Vec<String> {
+    fn dfs(&self, node: &str, map: &HashMap<String, Vec<String>>, visited: &[String]) -> Vec<String> {
         let mut paths = Vec::new();
-        let mut new_vist = visited.clone();
+        let mut new_vist = visited.to_owned();
         new_vist.push(String::from(node));
 
         if node == END {
@@ -54,7 +54,7 @@ impl Day12 {
         let next = map.get(node).unwrap();
         for n in next {
             if n != START {
-                if n.chars().nth(0).unwrap().is_uppercase() || !visited.contains(n) {
+                if n.chars().next().unwrap().is_uppercase() || !visited.contains(n) {
                     let temp_paths = self.dfs(n, map, &new_vist);
                     paths.extend(temp_paths);
                 }
@@ -63,9 +63,9 @@ impl Day12 {
         paths
     }
 
-    fn dfs2(&self, node: &str, map: &HashMap<String, Vec<String>>, visited: &Vec<String>, is_small_cave_visited_twice: bool) -> Vec<String> {
+    fn dfs2(&self, node: &str, map: &HashMap<String, Vec<String>>, visited: &[String], is_small_cave_visited_twice: bool) -> Vec<String> {
         let mut paths = Vec::new();
-        let mut new_vist = visited.clone();
+        let mut new_vist = visited.to_owned();
         new_vist.push(String::from(node));
 
         if node == END {
@@ -76,7 +76,7 @@ impl Day12 {
         let next = map.get(node).unwrap();
         for n in next {
             if n != START {
-                if n.chars().nth(0).unwrap().is_uppercase() || !visited.contains(n)  {
+                if n.chars().next().unwrap().is_uppercase() || !visited.contains(n)  {
                     let temp_paths = self.dfs2(n, map, &new_vist, is_small_cave_visited_twice);
                     paths.extend(temp_paths);
                 } else if !is_small_cave_visited_twice {
@@ -93,11 +93,11 @@ impl Day12 {
 impl Runnable for Day12 {
     fn run(&self) {
         let v = self.read();
-        let paths = self.dfs(START, &v, &vec!["".to_owned()]);
+        let paths = self.dfs(START, &v, &["".to_owned()]);
 
         println!("Day12 Part 1 - Total paths: {:?}", paths.len());
 
-        let new_paths = self.dfs2(START, &v, &vec!["".to_owned()], false);
+        let new_paths = self.dfs2(START, &v, &["".to_owned()], false);
         
         println!("Day12 Part 2 - Total paths: {:?}", new_paths.len());
     }

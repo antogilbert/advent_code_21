@@ -42,9 +42,7 @@ impl Point {
     }
 
     fn transpose(&mut self) {
-        let x = self.x;
-        self.x = self.y;
-        self.y = x;
+        std::mem::swap(&mut self.x, &mut self.y);
     }
 }
 

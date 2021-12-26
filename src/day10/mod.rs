@@ -110,7 +110,7 @@ impl Runnable for Day10 {
             }
         }
 
-        autocomplete.sort();
+        autocomplete.sort_unstable();
 
         println!("Day10 Part 1 - Total: {}", syntax);
         let i: usize = (autocomplete.len()-1)/2;

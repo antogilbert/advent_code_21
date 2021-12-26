@@ -1,4 +1,4 @@
-use std::{path::PathBuf, str::FromStr};
+use std::{path::PathBuf, str::FromStr, collections::BinaryHeap};
 
 use crate::util;
 
@@ -94,7 +94,7 @@ impl Runnable for Day9 {
         println!("Day9 Part 1 - Total: {}", total);
 
         let mut basin_mult = 0;
-        let mut sizes = Vec::new();
+        let mut sizes = BinaryHeap::new();
         if !basins.is_empty() {
             basin_mult = 1;
             for b in basins {
@@ -103,10 +103,9 @@ impl Runnable for Day9 {
             }
         }
 
-        sizes.sort_by(|a, b| b.cmp(a));
 
-        for i in 0..3 {
-            basin_mult *= sizes[i];
+        for _ in 0..3 {
+            basin_mult *= sizes.pop().unwrap();
         }
         println!("Day9 Part 2 - Total: {}", basin_mult);
     }
